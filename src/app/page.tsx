@@ -32,7 +32,11 @@ import { WebsocketDemo } from "@/components/WebsocketDemo";
 import { WebsocketDemo2 } from "@/components/WebsocketDemo2";
 import { cn } from "@/lib/utils";
 import { WebsocketDemo3 } from "@/components/WebsocketDemo3";
-import { parseAsInteger, parseAsIsoDateTime, useQueryState } from "next-usequerystate";
+import {
+  parseAsInteger,
+  parseAsIsoDateTime,
+  useQueryState,
+} from "next-usequerystate";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Page() {
@@ -42,7 +46,14 @@ export default function Page() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between mt-2 ">
-      <Tabs value={seletedTab} onValueChange={setSelectedTab} className={cn("w-full flex flex-col items-center", (seletedTab == "ws2" || seletedTab == "ws3") ? " " : "max-w-[600px]")}>
+      <Tabs
+        value={seletedTab}
+        onValueChange={setSelectedTab}
+        className={cn(
+          "w-full flex flex-col items-center",
+          seletedTab == "ws2" || seletedTab == "ws3" ? " " : "max-w-[600px]"
+        )}
+      >
         <TabsList className="grid w-full grid-cols-6 max-w-[600px]">
           <TabsTrigger value="ws">Realtime</TabsTrigger>
           <TabsTrigger value="ws2">Realtime 2</TabsTrigger>
@@ -73,10 +84,22 @@ export default function Page() {
 
       <div className="fixed bottom-4 flex gap-2">
         <Button asChild variant={"outline"}>
-          <a href="https://github.com/BennyKok/comfyui-deploy" target="_blank" className="plausible-event-name=Button+GitHub flex gap-2 items-center">GitHub <VscGithubAlt /></a>
+          <a
+            href="https://github.com/BennyKok/comfyui-deploy"
+            target="_blank"
+            className="plausible-event-name=Button+GitHub flex gap-2 items-center"
+          >
+            GitHub <VscGithubAlt />
+          </a>
         </Button>
         <Button asChild variant={"outline"}>
-          <a href="https://discord.gg/qtHUaVNRVM" target="_blank" className="plausible-event-name=Button+Discord flex gap-2 items-center">Discord <FaDiscord /></a>
+          <a
+            href="https://discord.gg/qtHUaVNRVM"
+            target="_blank"
+            className="plausible-event-name=Button+Discord flex gap-2 items-center"
+          >
+            Discord <FaDiscord />
+          </a>
         </Button>
       </div>
     </main>
@@ -84,7 +107,8 @@ export default function Page() {
 }
 
 function Txt2img() {
-  const [prompt, setPrompt] = useState("");
+  const [p_prompt, setPPrompt] = useState("");
+  const [n_prompt, setNPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [runIds, setRunIds] = useState<string[]>([]);
 
@@ -108,30 +132,38 @@ function Txt2img() {
             if (loading) return;
             setLoading(true);
 
-            const promises = Array(4).fill(null).map(() => {
-              return generate(prompt)
-                .then((res) => {
+            const promises = Array(1)
+              .fill(null)
+              .map(async () => {
+                try {
+                  const res = await generate(p_prompt, n_prompt);
                   if (res) {
                     setRunIds((ids) => [...ids, res.run_id]);
                   }
                   return res;
-                })
-                .catch((error) => {
+                } catch (error) {
                   console.error(error);
-                });
-            });
+                }
+              });
 
             Promise.all(promises).finally(() => {
               setLoading(false);
             });
           }}
         >
-          <Label htmlFor="picture">Image prompt</Label>
+          <Label htmlFor="positive">Positive prompt</Label>
           <Input
-            id="picture"
+            id="positive"
             type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
+            value={p_prompt}
+            onChange={(e) => setPPrompt(e.target.value)}
+          />
+          <Label htmlFor="negative">Negative prompt</Label>
+          <Input
+            id="negative"
+            type="text"
+            value={n_prompt}
+            onChange={(e) => setNPrompt(e.target.value)}
           />
           <Button type="submit" className="flex gap-2" disabled={loading}>
             Generate {loading && <LoadingIcon />}
@@ -235,7 +267,13 @@ function Img2img() {
             Generate {loading && <LoadingIcon />}
           </Button>
 
-          {runId && <ImageGenerationResult key={runId} runId={runId} className="aspect-square" />}
+          {runId && (
+            <ImageGenerationResult
+              key={runId}
+              runId={runId}
+              className="aspect-square"
+            />
+          )}
         </form>
       </CardContent>
     </Card>
@@ -268,7 +306,7 @@ const poses = {
 function OpenposeToImage() {
   const [prompt, setPrompt] = useState("");
   const [poseImageUrl, setPoseImageUrl] = useState(
-    "https://pub-6230db03dc3a4861a9c3e55145ceda44.r2.dev/openpose-pose%20(1).png",
+    "https://pub-6230db03dc3a4861a9c3e55145ceda44.r2.dev/openpose-pose%20(1).png"
   );
   const [poseLoading, setPoseLoading] = useState(false);
   const [image, setImage] = useState("");
@@ -384,7 +422,13 @@ function OpenposeToImage() {
               decorative
             /> */}
             <div className="w-full h-full">
-              {runId && <ImageGenerationResult key={runId} runId={runId} className="aspect-[768/1152]" />}
+              {runId && (
+                <ImageGenerationResult
+                  key={runId}
+                  runId={runId}
+                  className="aspect-[768/1152]"
+                />
+              )}
             </div>
           </div>
         </form>
